@@ -16,6 +16,9 @@ matrix forward_maxpool_layer(layer l, matrix in)
     matrix out = make_matrix(in.rows, outw*outh*l.channels);
 
     // TODO: 6.1 - iterate over the input and fill in the output with max values
+    for (int x = 0; x < in.rows; x++) {
+
+    }
 
     l.in[0] = in;
     free_matrix(l.out[0]);
