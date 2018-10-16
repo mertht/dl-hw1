@@ -46,11 +46,36 @@ matrix im2col(image im, int size, int stride)
     int outh = (im.h-1)/stride + 1;
     int rows = im.c*size*size;
     int cols = outw * outh;
-    matrix col = make_matrix(rows, cols);
+    matrix output = make_matrix(rows, cols);
 
-    // TODO: 5.1 - fill in the column matrix
+    // 5.1 - fill in the column matrix
+    // TODO: verify?
+    int ds = (size - 1) / 2;
+    for (int c = 0; c < im.c; c++) {
+        int col = 0;
+        for (int x = 0; x < im.w; x++) {
+            for (int y = 0; y < im.h; y++) {
+                int row = c * size * size;
+                // Perform one sweep of kernel
+                for (int dx = x - ds; dx <= x + ds; dx++) {
+                    for (int dy = y - ds; dy <= y + ds; dy++) {
+                        float pixel = get_pixel(im, x + dx, y + dy, c);
+                        int index = row * cols + col;
 
-    return col;
+                        // TODO: get rid of after debugging
+                        assert(index >= 0);
+                        assert(index < output.rows * output.cols);
+
+                        output.data[index] = pixel;
+                        row++;
+                    }
+                }
+                col++;
+            }
+        }
+    }
+    
+    return output;
 }
 
 // The reverse of im2col, add elements back into image
@@ -66,6 +91,29 @@ void col2im(matrix col, int size, int stride, image im)
     int cols = outw * outh;
 
     // TODO: 5.2 - add values into image im from the column matrix
+    int ds = (size - 1) / 2;
+    for (int c = 0; c < im.c; c++) {
+        int col = 0;
+        for (int x = 0; x < im.w; x++) {
+            for (int y = 0; y < im.h; y++) {
+                int row = c * size * size;
+                // Perform one sweep of kernel
+                for (int dx = x - ds; dx <= x + ds; dx++) {
+                    for (int dy = y - ds; dy <= y + ds; dy++) {
+                        int index = row * cols + col;
+                        float new_pixel = col.data[index];
+                        float cur_pixel = get_pixel(im, x + dx, y + dy, c);
+                        set_pixel(im, x + dx, y + dy, c, cur_pixel + new_pixel);
+                        row++;
+                    }
+                }
+                col++;
+            }
+        }
+    }
+    
+    return output;
+
 
 }
 
