@@ -44,9 +44,7 @@ matrix im2col(image im, int size, int stride)
 {
     int outw = (im.w-1)/stride + 1;
     int outh = (im.h-1)/stride + 1;
-    int rows = im.c*size*size;
-    int cols = outw * outh;
-    matrix output = make_matrix(rows, cols);
+    matrix output = make_matrix(outw * outh, im.c*size*size);
 
     // 5.1 - fill in the column matrix
     // TODO: verify?
@@ -60,9 +58,9 @@ matrix im2col(image im, int size, int stride)
                 for (int dx = x - ds; dx <= x + ds; dx++) {
                     for (int dy = y - ds; dy <= y + ds; dy++) {
                         float pixel = get_pixel(im, x + dx, y + dy, c);
-                        int index = row * cols + col;
+                        int index = row * output.cols + col;
 
-                        // TODO: get rid of after debugging
+                        // check bounds
                         assert(index >= 0);
                         assert(index < output.rows * output.cols);
 
