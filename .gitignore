@@ -9,6 +9,8 @@
 libuwnet*
 uwnet
 *.vimrc
+mnist
+mnist.tar.gz
 
 # OS Generated #
 .DS_Store*
