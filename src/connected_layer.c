@@ -85,7 +85,8 @@ void backward_connected_layer(layer l, matrix prev_delta)
         // Finally, if there is a previous layer to calculate for,
         // calculate dL/d(in). Again, using axpy, add this into the current
         // value we have for the previous layers delta, prev_delta.
-        matrix dLdx = matmul(delta, l.dw); // TODO: tranpose or use l.w instead of l.dw??
+        matrix lw_T = transpose_matrix(l.w);
+        matrix dLdx = matmul(delta, lw_T);
         axpy_matrix(1.0, dLdx, prev_delta);
         free_matrix(dLdx);
     }

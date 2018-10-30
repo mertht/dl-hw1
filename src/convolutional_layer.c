@@ -117,8 +117,8 @@ void col2im(matrix input, int size, int stride, image im)
     int ds = (size - 1) / 2;
     for (int c = 0; c < im.c; c++) {
         int col = 0;
-        for (int x = 0; x < im.w; x++) {
-            for (int y = 0; y < im.h; y++) {
+        for (int x = 0; x < im.w; x += stride) {
+            for (int y = 0; y < im.h; y += stride) {
                 int row = c * size * size;
                 // Perform one sweep of kernel
                 for (int dx = x - ds; dx <= x + ds; dx++) {
