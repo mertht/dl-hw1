@@ -37,11 +37,9 @@ void backward_bias(matrix delta, matrix db)
 // returns: the same layer, modified after running
 matrix forward_connected_layer(layer l, matrix in)
 {
-    // 3.1 - run the network forward
-    // TODO: verify
-    matrix out = make_matrix(in.rows, l.w.cols);
-
-    out = matmul(in, l.w);
+    // TODO: 3.1 - run the network forward
+    //matrix out = make_matrix(in.rows, l.w.cols); // Going to want to change this!
+    matrix out = matmul(in, l.w);
     forward_bias(out, l.b);
     activate_matrix(out, l.activation);
 
@@ -64,8 +62,7 @@ void backward_connected_layer(layer l, matrix prev_delta)
     matrix out   = l.out[0];
     matrix delta = l.delta[0];
 
-    // 3.2
-    // TODO: verify
+    // TODO: 3.2
     // delta is the error made by this layer, dL/dout
     // First modify in place to be dL/d(in*w+b) using the gradient of activation
     gradient_matrix(out, l.activation, delta);
@@ -76,33 +73,34 @@ void backward_connected_layer(layer l, matrix prev_delta)
 
     // Then calculate dL/dw. Use axpy to add this dL/dw into any previously stored
     // updates for our weights, which are stored in l.dw
-    matrix dLdw = matmul(transpose_matrix(in), delta);
-
-    axpy_matrix(1.0, dLdw, l.dw);
-    free_matrix(dLdw);
+    matrix xt = transpose_matrix(in);
+    matrix dw = matmul(xt, delta);
+    axpy_matrix(1, dw, l.dw);
 
     if(prev_delta.data){
         // Finally, if there is a previous layer to calculate for,
         // calculate dL/d(in). Again, using axpy, add this into the current
         // value we have for the previous layers delta, prev_delta.
-        matrix lw_T = transpose_matrix(l.w);
-        matrix dLdx = matmul(delta, lw_T);
-        axpy_matrix(1.0, dLdx, prev_delta);
-        free_matrix(dLdx);
+        matrix wt = transpose_matrix(l.w);
+        matrix dp = matmul(delta, wt);
+        axpy_matrix(1, dp, prev_delta);
+        free_matrix(dp);
+        free_matrix(wt);
     }
+    free_matrix(dw);
+    free_matrix(xt);
 }
 
 // Update 
 void update_connected_layer(layer l, float rate, float momentum, float decay)
 {
-    // HERE
-    // TODO: verify
-    // TODO: are these done in the correct order?
+    // TODO
+    axpy_matrix(rate, l.db, l.b);
+    scal_matrix(momentum, l.db);
+
     axpy_matrix(-decay, l.w, l.dw);
     axpy_matrix(rate, l.dw, l.w);
     scal_matrix(momentum, l.dw);
-    // TODO: update biases?
-    axpy_matrix(rate, l.db, l.b);
 }
 
 layer make_connected_layer(int inputs, int outputs, ACTIVATION activation)
