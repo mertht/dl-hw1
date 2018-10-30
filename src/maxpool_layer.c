@@ -63,6 +63,9 @@ void backward_maxpool_layer(layer l, matrix prev_delta)
             float test_val = in.data[x*in.cols + y];
             if (test_val == prev_val) {
                 // (x, y) was propgated fowards, so we need to pass error back
+                int index = x*in.cols + y;
+                assert(index >= 0);
+                assert(index < delta.rows * delta.cols);
                 delta.data[x*in.cols + y] = prev_delta.data[out_index];
             }
         }

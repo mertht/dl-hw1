@@ -44,21 +44,38 @@ matrix im2col(image im, int size, int stride)
 {
     int outw = (im.w-1)/stride + 1;
     int outh = (im.h-1)/stride + 1;
-    matrix output = make_matrix(outw * outh, im.c*size*size);
+    int rows = im.c*size*size;
+    int cols = outw * outh;
+    matrix output = make_matrix(rows, cols);
+
+    // printf("size: %d\n", size);
+    // printf("im.w: %d, im.h: %d\n", im.w, im.h);
+    // printf("output.rows: %d, output.cols: %d\n", output.rows, output.cols);
 
     // 5.1 - fill in the column matrix
     // TODO: verify?
     int ds = (size - 1) / 2;
     for (int c = 0; c < im.c; c++) {
         int col = 0;
-        for (int x = 0; x < im.w; x++) {
-            for (int y = 0; y < im.h; y++) {
-                int row = c * size * size;
+
+        // convert channel c
+        for (int x = 0; x < im.w; x += stride) {
+            for (int y = 0; y < im.h; y += stride) {
+                
                 // Perform one sweep of kernel
-                for (int dx = x - ds; dx <= x + ds; dx++) {
-                    for (int dy = y - ds; dy <= y + ds; dy++) {
+                int row = c * size * size;
+                for (int dx = x - ds; dx < x + ds; dx++) {
+                    for (int dy = y - ds; dy < y + ds; dy++) {
                         float pixel = get_pixel(im, x + dx, y + dy, c);
                         int index = row * output.cols + col;
+
+                        //printf("row: %d/%d, col: %d/%d\n", row, output.rows, col, output.cols);
+
+                        // check row/col
+                        assert(row >= 0);
+                        assert(row < rows);
+                        assert(col >= 0);
+                        assert(col < cols);
 
                         // check bounds
                         assert(index >= 0);
@@ -68,10 +85,17 @@ matrix im2col(image im, int size, int stride)
                         row++;
                     }
                 }
+
+                // end sweep of kernel
                 col++;
             }
         }
+        // end convert channel
     }
+
+    assert(output.rows == rows);
+    assert(output.cols == cols);
+
     
     return output;
 }
