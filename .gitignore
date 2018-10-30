@@ -11,6 +11,8 @@ uwnet
 *.vimrc
 mnist
 mnist.tar.gz
+cifar
+cifar.tar.gz
 
 # OS Generated #
 .DS_Store*

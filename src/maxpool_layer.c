@@ -21,10 +21,12 @@ matrix forward_maxpool_layer(layer l, matrix in)
         int i = x / l.stride;
         for (int y = 0; y < in.cols; y++) {
             int j = y / l.stride;
-            int out_index = i * outw + j;
+            int out_index = i*outw + j;
             float prev_val = out.data[out_index];
             float test_val = in.data[x*in.cols + y];
             if (test_val > prev_val) {
+                assert(out_index >= 0);
+                assert(out_index < out.rows * out.cols);
                 out.data[out_index] = test_val;
             }
         }
@@ -54,19 +56,19 @@ void backward_maxpool_layer(layer l, matrix prev_delta)
     // corresponding delta with the delta from the output. This should be
     // similar to the forward method in structure.
     // TODO: boii
-    for (int x = 0; x < in.rows; x++) {
+    for (int x = 0; x < delta.rows; x++) {
         int i = x / l.stride;
-        for (int y = 0; y < in.cols; y++) {
+        for (int y = 0; y < delta.cols; y++) {
             int j = y / l.stride;
             int out_index = i * outw + j;
             float prev_val = out.data[out_index];
             float test_val = in.data[x*in.cols + y];
             if (test_val == prev_val) {
                 // (x, y) was propgated fowards, so we need to pass error back
-                int index = x*in.cols + y;
+                int index = x*delta.cols + y;
                 assert(index >= 0);
                 assert(index < delta.rows * delta.cols);
-                delta.data[x*in.cols + y] = prev_delta.data[out_index];
+                delta.data[index] = prev_delta.data[out_index];
             }
         }
     }
